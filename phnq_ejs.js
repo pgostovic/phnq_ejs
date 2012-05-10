@@ -16,13 +16,7 @@ require("phnq_log").exec("phnq_ejs", function(log)
 			// Trim leading and trailing whitespace from each line, then add a new-line char.
 			if(options.trimLines)
 			{
-				var lBuf = [];
-				lines = str.split("\n");
-				for(var i=0; i<lines.length; i++)
-				{
-					lBuf.push(lines[i].trim());
-				}
-				str = lBuf.join("\n");
+				str = phnq_core.trimLines(str);
 			}
 
 			var buf = [];
