@@ -21,16 +21,21 @@ require("phnq_log").exec("phnq_ejs", function(log)
 
 			var buf = [];
 			buf.push("(function(locals){");
-			buf.push("var _out=[];");
+			buf.push("var _buf=[];");
 			buf.push("with(locals||{}){");
+			buf.push("var _out=function(expr, noEval){");
+			buf.push("try{_buf.push(noEval?expr:eval(expr));}");
+			buf.push("catch(ex){_buf.push('[error:'+ex.message+']');}");
+			buf.push("};");
 			var m;
 			var idx = 0;
 			while((m = ESC_REGEX.exec(str)))
 			{
-				buf.push("_out.push(\""+phnq_core.escapeJS(str.substring(idx, m.index))+"\");");
+				buf.push("_out(\""+phnq_core.escapeJS(str.substring(idx, m.index))+"\", true);");
 				if(m[1])
 				{
-					buf.push("_out.push("+m[2].trim()+");");
+					var exprStr = "\"" + phnq_core.escapeJS(m[2].trim()) + "\"";
+					buf.push("_out("+exprStr+");");
 				}
 				else
 				{
@@ -38,8 +43,8 @@ require("phnq_log").exec("phnq_ejs", function(log)
 				}
 				idx = ESC_REGEX.lastIndex;
 			}
-			buf.push("_out.push(\""+phnq_core.escapeJS(str.substring(idx))+"\");}");
-			buf.push("return _out.join(\"\");})");
+			buf.push("_out(\""+phnq_core.escapeJS(str.substring(idx))+"\", true);}");
+			buf.push("return _buf.join(\"\");})");
 			return buf.join("");
 		}
 	};
