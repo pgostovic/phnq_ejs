@@ -4,7 +4,7 @@ require("phnq_log").exec("phnq_ejs", function(log)
 
 	phnq_core.assertServer();
 
-	var ESC_REGEX = /<%(=)?([^%]*)%>\n?/g;
+	var ESC_REGEX = /<%(=)?(.*?)%>\n?/g;
 
 	var phnq_ejs =
 	{
@@ -20,30 +20,32 @@ require("phnq_log").exec("phnq_ejs", function(log)
 			}
 
 			var buf = [];
-			buf.push("(function(locals){");
+			buf.push("(function(me){");
 			buf.push("var _buf=[];");
-			buf.push("with(locals||{}){");
-			buf.push("var _out=function(expr, noEval){");
-			buf.push("try{_buf.push(noEval?expr:eval(expr));}");
-			buf.push("catch(ex){_buf.push('[error:'+ex.message+']');}");
-			buf.push("};");
+			buf.push("with(me||{}){");
+			buf.push("var _out=function(str){_buf.push(str)};");
+
 			var m;
+			var s;
 			var idx = 0;
 			while((m = ESC_REGEX.exec(str)))
 			{
-				buf.push("_out(\""+phnq_core.escapeJS(str.substring(idx, m.index))+"\", true);");
-				if(m[1])
+				s = phnq_core.escapeJS(str.substring(idx, m.index));
+				buf.push(s ? "_out(\""+s+"\");" : "");
+
+				s = m[2].trim();
+				if(s)
 				{
-					var exprStr = "\"" + phnq_core.escapeJS(m[2].trim()) + "\"";
-					buf.push("_out("+exprStr+");");
-				}
-				else
-				{
-					buf.push(m[2].trim());
+					if(m[1])
+						buf.push("_out("+s+");");
+					else
+						buf.push(s);
 				}
 				idx = ESC_REGEX.lastIndex;
 			}
-			buf.push("_out(\""+phnq_core.escapeJS(str.substring(idx))+"\", true);}");
+			s = phnq_core.escapeJS(str.substring(idx));
+			buf.push(s ? "_out(\""+s+"\");" : "");
+			buf.push("}")
 			buf.push("return _buf.join(\"\");})");
 			return buf.join("");
 		}
