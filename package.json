@@ -7,5 +7,5 @@
   "repository"    : {"type": "git", "url": "git://github.com/pgostovic/phnq_ejs.git"},
   "main"          : "phnq_ejs.js",
   "version"       : "1.0.0",
-  "dependencies"  : { "phnq_log": "1.0.0" }
+  "dependencies"  : { "phnq_log": "1.0.1" }
 }
