@@ -1,0 +1,10 @@
+it should work for "this" variables
+==========
+{
+	_locals: {},
+	_this: {num:42}
+}
+==========
+TEST <%=this.num%> TEST
+==========
+TEST 42 TEST

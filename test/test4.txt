@@ -1,0 +1,22 @@
+it should be able to process some logic
+==========
+{
+	_locals: {isSunny:true},
+	_this: {num:5}
+}
+==========
+<% if(isSunny) { %>
+	SUNGLASSES
+<% } else { %>
+	UMBRELLA
+<% } %>
+<% for(var i=0; i<this.num; i++) { %>
+LOOP <%=i%> 
+<% } %>
+==========
+SUNGLASSES
+LOOP 0 
+LOOP 1 
+LOOP 2 
+LOOP 3 
+LOOP 4 

@@ -1,0 +1,11 @@
+it should correctly render a static template
+==========
+{}
+==========
+ONE
+TWO
+THREE
+==========
+ONE
+TWO
+THREE
