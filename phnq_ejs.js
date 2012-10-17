@@ -19,7 +19,7 @@ require("phnq_log").exec("phnq_ejs", function(log)
 				str = phnq_core.trimLines(str, true);
 
 			var buf = [];
-			buf.push("(function(_this, _locals){");
+			buf.push("(function(_locals, _this){");
 			buf.push("_locals = _locals || {};");
 			buf.push("var _b=[];");
 			buf.push("var _i=0;");

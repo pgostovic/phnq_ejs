@@ -33,7 +33,7 @@ describe("phnq_ejs", function()
 				var testData = getTestData(name);
 				it(testData.it, function()
 				{
-					var result = phnq_core.trimLines(testData.ejsFn(testData.objs._this, testData.objs._locals), true);
+					var result = phnq_core.trimLines(testData.ejsFn(testData.objs._locals, testData.objs._this), true);
 					var expected = phnq_core.trimLines(testData.expected, true);
 					assert.equal(expected, result);
 				});
