@@ -4,7 +4,7 @@ require("phnq_log").exec("phnq_ejs", function(log)
 
 	phnq_core.assertServer();
 
-	var ESC_REGEX = /<%(=)?([\s\S]*?)%>\n?/g;
+	var ESC_REGEX = /<%(=)?([\s\S]*?)%>/g;
 	var BODY_FN_REGEX = /([\s,])function\(([^)]*)\)\s*\{\s*$/;
 
 	var phnq_ejs =
@@ -16,16 +16,15 @@ require("phnq_log").exec("phnq_ejs", function(log)
 
 			// Trim leading and trailing whitespace from each line, then add a new-line char.
 			if(options.trimLines)
-			{
-				str = phnq_core.trimLines(str);
-			}
+				str = phnq_core.trimLines(str, true);
 
 			var buf = [];
-			buf.push("(function(me){");
-			buf.push("me = me || {};");
+			buf.push("(function(_this, _locals){");
+			buf.push("_locals = _locals || {};");
 			buf.push("var _b=[];");
 			buf.push("var _i=0;");
-			buf.push("with(me){");
+			buf.push("(function(){");
+			buf.push("with(_locals){");
 
 			var m;
 			var s;
@@ -55,12 +54,14 @@ require("phnq_log").exec("phnq_ejs", function(log)
 						if(m[1])
 							buf.push(";");
 					}
+
 				}
 				idx = ESC_REGEX.lastIndex;
 			}
 			s = phnq_core.escapeJS(str.substring(idx));
 			buf.push(s ? "_b[_i++]=\""+s+"\";" : "");
 			buf.push("}");
+			buf.push("}).call(_this);");
 			buf.push("return _b.join(\"\");})");
 			return buf.join("");
 		}
