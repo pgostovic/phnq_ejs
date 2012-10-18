@@ -1,0 +1,48 @@
+it should correctly handle expression control structures
+==========
+{
+	_locals:
+	{
+		doBubba: true,
+		doGump: false,
+		num: 3
+	}
+}
+==========
+ONE
+{if doBubba}
+	BUBBA
+{/if}
+{if doGump}
+	GUMP
+{/if}
+{else}
+	NO GUMP
+{/else}
+{for var i=0; i<3; i++}
+	Yo ${i}
+{/for}
+THREE
+{while num--}
+	Zo ${num}
+{/while}
+{for var x=0; x<2; x++}
+	{for var y=0; y<2; y++}
+		p(${x}, ${y})
+	{/for}
+{/for}
+==========
+ONE
+BUBBA
+NO GUMP
+Yo 0
+Yo 1
+Yo 2
+THREE
+Zo 2
+Zo 1
+Zo 0
+p(0, 0)
+p(0, 1)
+p(1, 0)
+p(1, 1)

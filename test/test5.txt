@@ -1,0 +1,26 @@
+it should correctly dereference expressions
+==========
+{
+	_locals:
+	{
+		x:42,
+		obj:
+		{
+			bubba: "gump",
+			arr: [1,2,3,4,5]
+		}
+
+	}
+}
+==========
+ONE
+${x}
+${obj.bubba}
+${obj.arr[2]}
+THREE
+==========
+ONE
+42
+gump
+3
+THREE

@@ -13,10 +13,14 @@ require("phnq_log").exec("phnq_ejs", function(log)
 		{
 			options = options || {};
 			options.trimLines = options.trimLines == undefined ? true : options.trimLines;
+			options.expressions = options.expressions == undefined ? true : options.expressions;
 
 			// Trim leading and trailing whitespace from each line, then add a new-line char.
 			if(options.trimLines)
 				str = phnq_core.trimLines(str, true);
+
+			if(options.expressions)
+				str = processControlStructures(processExpressions(str));
 
 			var buf = [];
 			buf.push("(function(_locals, _this){");
@@ -69,3 +73,49 @@ require("phnq_log").exec("phnq_ejs", function(log)
 
 	module.exports = phnq_ejs;
 });
+
+
+var EXP_REGEX = /\$\{([^}]+)\}/g;
+var EXP_STRUC_REGEX = /[^\$]\{(if|else|for|while)(\s+[^\}]*)?}/g;
+var EXP_STRUC_CLOSE_REGEX = /\{\/(if|else|for|while)\}/g;
+
+var processExpressions = function(ejs)
+{
+	var buf = [];
+
+	var m;
+	var idx = 0;
+	while((m = EXP_REGEX.exec(ejs)))
+	{
+		buf.push(ejs.substring(idx, m.index));
+		buf.push("<%=");
+		buf.push(m[1]);
+		buf.push("%>");
+		idx = EXP_REGEX.lastIndex;
+	}
+	buf.push(ejs.substring(idx));
+
+	return buf.join("");
+};
+
+var processControlStructures = function(ejs)
+{
+	var buf = [];
+
+	var m;
+	var idx = 0;
+	while((m = EXP_STRUC_REGEX.exec(ejs)))
+	{
+		buf.push(ejs.substring(idx, m.index));
+		buf.push("<%"+m[1]);
+		if(m[2])
+		{
+			buf.push("("+m[2].trim()+")");
+		}
+		buf.push("{%>");
+		idx = EXP_STRUC_REGEX.lastIndex;
+	}
+	buf.push(ejs.substring(idx));
+
+	return buf.join("").replace(EXP_STRUC_CLOSE_REGEX, "<%}%>");
+};
