@@ -20,7 +20,7 @@ require("phnq_log").exec("phnq_ejs", function(log)
 				str = phnq_core.trimLines(str, true);
 
 			if(options.expressions)
-				str = processControlStructures(processExpressions(str));
+				str = processFunctions(processControlStructures(processExpressions(str)));
 
 			var buf = [];
 			buf.push("(function(_locals, _this){");
@@ -76,8 +76,9 @@ require("phnq_log").exec("phnq_ejs", function(log)
 
 
 var EXP_REGEX = /\$\{([^}]+)\}/g;
-var EXP_STRUC_REGEX = /[^\$]\{(if|else|for|while)(\s+[^\}]*)?}/g;
+var EXP_STRUC_REGEX = /([^\$]?)\{(if|else|for|while)(\s+[^\}]*)?}/g;
 var EXP_STRUC_CLOSE_REGEX = /\{\/(if|else|for|while)\}/g;
+var EXP_FUNC_EMPTY_REGEX = /([^\$]?)\{([^\s\/]*)(\s+[^\}]*)?\/}/g;
 
 var processExpressions = function(ejs)
 {
@@ -107,10 +108,14 @@ var processControlStructures = function(ejs)
 	while((m = EXP_STRUC_REGEX.exec(ejs)))
 	{
 		buf.push(ejs.substring(idx, m.index));
-		buf.push("<%"+m[1]);
-		if(m[2])
+
+		if(m[1].trim())
+			buf.push(m[1]);
+
+		buf.push("<%"+m[2]);
+		if(m[3])
 		{
-			buf.push("("+m[2].trim()+")");
+			buf.push("("+m[3].trim()+")");
 		}
 		buf.push("{%>");
 		idx = EXP_STRUC_REGEX.lastIndex;
@@ -118,4 +123,27 @@ var processControlStructures = function(ejs)
 	buf.push(ejs.substring(idx));
 
 	return buf.join("").replace(EXP_STRUC_CLOSE_REGEX, "<%}%>");
+};
+
+var processFunctions = function(ejs)
+{
+	var buf = [];
+
+	var m;
+	var idx = 0;
+	while((m = EXP_FUNC_EMPTY_REGEX.exec(ejs)))
+	{
+		buf.push(ejs.substring(idx, m.index));
+
+		if(m[1])
+			buf.push(m[1]);
+
+		buf.push("<%="+m[2]);
+		buf.push("("+(m[3]||"").trim()+");");
+		buf.push("%>");
+		idx = EXP_FUNC_EMPTY_REGEX.lastIndex;
+	}
+	buf.push(ejs.substring(idx));
+
+	return buf.join("");
 };

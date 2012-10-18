@@ -7,7 +7,7 @@ var assert = require("assert");
 var getTestData = function(name, fn)
 {
 	var data = fs.readFileSync(path.join(__dirname, name), "UTF-8");
-	var comps = data.split("==========");
+	var comps = data.split(/=+\n/);
 	return {
 			it: comps[0],
 			objs: eval("("+comps[1]+")"),

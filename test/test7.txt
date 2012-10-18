@@ -1,0 +1,21 @@
+it should correctly render a static template
+==========
+{
+	_locals:
+	{
+		add: function(x, y)
+		{
+			return x + y;
+		}
+	}
+}
+==========
+ONE
+<%=add(10, 5)%>
+{add 20, 10/}
+THREE
+==========
+ONE
+15
+30
+THREE
