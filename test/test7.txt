@@ -1,4 +1,4 @@
-it should correctly render a static template
+it should correctly invoke a function
 ==========
 {
 	_locals:

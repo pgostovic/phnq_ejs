@@ -1,0 +1,36 @@
+it should correctly invoke a function with a body
+==========
+{
+	_locals:
+	{
+		withBodyNoArgs: function(fn)
+		{
+			var x = 10;
+			var y = 5;
+			var buf = [];
+			fn(buf);
+			return "<<< " + (x+y) + ", " + buf.join("").trim() + " >>>";
+		},
+
+		withBodyArgs: function(x, y, fn)
+		{
+			var buf = [];
+			fn(buf);
+			return "<<< " + (x+y) + ", " + buf.join("").trim() + " >>>";
+		}
+	}
+}
+==========
+ONE
+<%=withBodyNoArgs(function(){ %>
+	YO
+<%});%>
+<%=withBodyArgs(10, 20, function(){ %>
+	Bubba
+<%});%>
+THREE
+==========
+ONE
+<<< 15, YO >>>
+<<< 30, Bubba >>>
+THREE

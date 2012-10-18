@@ -5,7 +5,7 @@ require("phnq_log").exec("phnq_ejs", function(log)
 	phnq_core.assertServer();
 
 	var ESC_REGEX = /<%(=)?([\s\S]*?)%>/g;
-	var BODY_FN_REGEX = /([\s,])function\(([^)]*)\)\s*\{\s*$/;
+	var BODY_FN_REGEX = /([\s,])?function\(([^)]*)\)\s*\{\s*$/;
 
 	var phnq_ejs =
 	{
