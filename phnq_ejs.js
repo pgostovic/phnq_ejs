@@ -78,7 +78,7 @@ require("phnq_log").exec("phnq_ejs", function(log)
 var EXP_REGEX = /\$\{([^}]+)\}/g;
 var EXP_STRUC_REGEX = /([^\$]?)\{(if|else|for|while)(\s+[^\}]*)?}/g;
 var EXP_STRUC_CLOSE_REGEX = /\{\/(if|else|for|while)\}/g;
-var EXP_FUNC_EMPTY_REGEX = /([^\$]?)\{([^\s\/]*)(\s+[^\}]*)?\/}/g;
+var EXP_FUNC_EMPTY_REGEX = /([^\$]?)\{([^\s\/]+)(\s+[^\}]*)?\/}/g;
 
 var processExpressions = function(ejs)
 {
