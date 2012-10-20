@@ -1,4 +1,4 @@
-it should correctly invoke a function with a body
+it should correctly invoke a function (expression style) with a body
 ==========
 {
 	_locals:
@@ -26,15 +26,15 @@ it should correctly invoke a function with a body
 }
 ==========
 ONE
-<%=withBodyNoArgs(function(){ %>
-	YOP
-<%});%>
-<%=withBodyArgs(10, 20, function(){ %>
-	{add 1, 2 / }
-<%});%>
+{withBodyNoArgs}
+	YO
+{/withBodyNoArgs}
+{withBodyArgs 10, 20}
+	{add 1, 2/}
+{/withBodyArgs}
 THREE
 ==========
 ONE
-<<< 15, YOP >>>
+<<< 15, YO >>>
 <<< 30, 3 >>>
 THREE
