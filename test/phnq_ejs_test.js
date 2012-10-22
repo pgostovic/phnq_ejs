@@ -27,7 +27,7 @@ describe("phnq_ejs", function()
 			if(names.length == 0)
 				return;
 
-			name = names.pop();
+			name = names.splice(0, 1)[0];
 			if(name.match(/\.txt$/))
 			{
 				var testData = getTestData(name);

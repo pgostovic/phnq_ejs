@@ -1,0 +1,20 @@
+it should correctly handle double braces
+==========
+{
+	_locals:
+	{
+		getFoo: function(obj)
+		{
+			return obj.foo;
+		}
+	}
+}
+==========
+{{if true}}
+	TRUTH
+{/if}
+<% var theObj = {foo:42}; %>
+{{getFoo theObj/}}
+==========
+TRUTH
+42

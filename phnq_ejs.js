@@ -20,7 +20,9 @@ require("phnq_log").exec("phnq_ejs", function(log)
 				str = phnq_core.trimLines(str, true);
 
 			if(options.expressions)
-				str = processFunctions(processControlStructures(processExpressions(str)));
+				str = processExpressions(str);
+
+			// console.log("EJS: ", str);
 
 			var buf = [];
 			buf.push("(function(_locals, _this){");
@@ -74,104 +76,128 @@ require("phnq_log").exec("phnq_ejs", function(log)
 	module.exports = phnq_ejs;
 });
 
-
-var EXP_REGEX = /\$\{([^}]+)\}/g;
-var EXP_STRUC_REGEX = /([^\$]?)\{(if|else|for|while)(\s+[^\}]*)?}/g;
-var EXP_STRUC_CLOSE_REGEX = /\{\/(if|else|for|while)\}/g;
-var EXP_FUNC_EMPTY_REGEX = /([^\$]?)\{([^\s\/]+)(\s+[^\}]*)?\/\s*}/g;
-var EXP_FUNC_REGEX = /([^\$]?)\{(\w+)(\s+[^\}]*)?}/g;
-var EXP_FUNC_CLOSE_REGEX = /\{\/(\w+)\}/g;
-
 var processExpressions = function(ejs)
 {
-	var buf = [];
-
-	var m;
-	var idx = 0;
-	while((m = EXP_REGEX.exec(ejs)))
-	{
-		buf.push(ejs.substring(idx, m.index));
-		buf.push("<%=");
-		buf.push(m[1]);
-		buf.push("%>");
-		idx = EXP_REGEX.lastIndex;
-	}
-	buf.push(ejs.substring(idx));
-
-	return buf.join("");
+	return processStructures(processLiterals(ejs));
 };
 
-var processControlStructures = function(ejs)
+var EXP_LITERALS_REGEX = /\$\{(.*?)\}/g
+var processLiterals = function(ejs)
 {
-	var buf = [];
-
-	var m;
-	var idx = 0;
-	while((m = EXP_STRUC_REGEX.exec(ejs)))
+	return ejs.replace(EXP_LITERALS_REGEX, function(match, $1, offset, orig)
 	{
-		buf.push(ejs.substring(idx, m.index));
+		return "<%="+$1+"%>";
+	});
+};
 
-		if(m[1].trim())
-			buf.push(m[1]);
+var EXP_TAG_REGEX = /(\{)?\{(\/)?(\w*)(\s+.*?)?(\/)?\s*}(})?/g;
+var CONTROL_STRUCT_NAMES = /^(if|for|while|else)$/;
+var processStructures = function(ejs)
+{
+	// collapse space between {/if} and {else}
+	ejs = ejs.replace(/\{\/if\}\s*?\{else\}/g, "{/if}{else}");
 
-		buf.push("<%"+m[2]);
-		if(m[3])
+	var nameStack = [];
+
+	return ejs.replace(EXP_TAG_REGEX, function(match, $1, $2, $3, $4, $5, $6, offset, orig)
+	{
+		var isBraceEscaped = !!$1 && !!$6
+		var isClose = $2 == "/";
+		var name = $3;
+		var args = $4;
+		var isEmpty = $5 == "/";
+
+		if(isClose)
 		{
-			buf.push("("+m[3].trim()+")");
+			if(nameStack.length == 0 || nameStack.pop() != name)
+				throw "Invalid syntax";
+
+			if(name.match(CONTROL_STRUCT_NAMES))
+				return "<%}%>";
+			else
+				return "<%});%>";
 		}
-		buf.push("{%>");
-		idx = EXP_STRUC_REGEX.lastIndex;
-	}
-	buf.push(ejs.substring(idx));
-
-	return buf.join("").replace(EXP_STRUC_CLOSE_REGEX, "<%}%>");
-};
-
-var processFunctions = function(ejs)
-{
-	var buf = [];
-
-	var m;
-	var idx = 0;
-	while((m = EXP_FUNC_EMPTY_REGEX.exec(ejs)))
-	{
-		buf.push(ejs.substring(idx, m.index));
-
-		if(m[1])
-			buf.push(m[1]);
-
-		buf.push("<%="+m[2]);
-		buf.push("("+(m[3]||"").trim()+");");
-		buf.push("%>");
-		idx = EXP_FUNC_EMPTY_REGEX.lastIndex;
-	}
-	buf.push(ejs.substring(idx));
-
-	return processBodyFunctions(buf.join(""));
-};
-
-var processBodyFunctions = function(ejs)
-{
-	var buf = [];
-
-	var m;
-	var idx = 0;
-	while((m = EXP_FUNC_REGEX.exec(ejs)))
-	{
-		buf.push(ejs.substring(idx, m.index));
-
-		if(m[1])
-			buf.push(m[1]);
-
-		buf.push("<%="+m[2]+"(");
-		if(m[3])
+		else if(isEmpty)
 		{
-			buf.push(m[3].trim()+", ");
+			return "<%="+name+"("+args+")%>";
 		}
-		buf.push("function(){ %>");
-		idx = EXP_FUNC_REGEX.lastIndex;
-	}
-	buf.push(ejs.substring(idx));
+		else // open non-empty
+		{
+			nameStack.push(name);
 
-	return buf.join("").replace(EXP_FUNC_CLOSE_REGEX, "<%});%>");
+			if(name.match(CONTROL_STRUCT_NAMES))
+			{
+				if(args)
+					args = "("+args+")";
+				else
+					args = "";
+
+				return "<%"+name+args+"{%>";
+			}
+			else
+			{
+				if(args)
+					args = args + ",";
+				else
+					args = "";
+
+				return "<%="+name+"("+args+"function(){%>";
+			}
+		}
+	});
 };
+
+
+
+/*
+
+	${exp}
+	===================== literal
+	<%=exp%>
+
+	{exp/}
+	===================== method no args, no body
+	<%=exp()%>
+
+	{exp arg1, arg2/}
+	===================== method with args, no body
+	<%=exp(arg1, arg2)%>
+
+	{exp}
+		body
+	{/exp}
+	===================== method no args, with body
+	<%=exp(function(){%>
+		body
+	<%})%>
+
+	{exp arg1, arg2}
+		body
+	{/exp}
+	===================== method with args, with body
+	<%=exp(arg1, arg2, function(){%>
+		body
+	<%})%>
+
+	{if test}
+		body
+	{/if}
+	===================== control structure (+for, while, else)
+	<% if(test) { %>
+		body
+	<% } %>
+
+	So....
+
+		${exp()} == {exp/}
+
+		${exp(arg1, arg2)} == {exp arg1, arg2/}
+
+
+	When braces are used like xml tags (i.e. well formed, balanced), then they
+	are interpreted as functions.
+
+	When the ${exp} syntax is used, the expression within the braces is interpreted
+	as literal JavaScript.
+
+*/
