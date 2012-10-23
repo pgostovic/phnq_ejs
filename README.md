@@ -28,6 +28,36 @@ The above code would render as follows:
 
 Very basic. Very simple.
 
+Expressions
+-----------
+An alternate syntax, called expressions, is also available. For example:
+
+	${foo}
+
+This is equivalent to:
+
+	<%= foo %>
+
+Another example:
+
+	{if true}
+		<p>truth</p>
+	{/if}
+
+This is equivalent to:
+
+	<% if(true) { %>
+		<p>truth</p>
+	<% } %>
+
+Notice the dollar sign in the ${foo} example and the lack of dollar sign in the {if} example. The syntax with the dollar sign just renders a JavaScript value.  The syntax without the dollar sign must adgere to xml-like syntax. That is, these "tags" must be well-formed; each open tag must have a corresponding closing tag, or they must be empty. These "structured" expressions are treated like functions, unless their "tag" name is one of if, else, while or for, in which case they are treated like control structures. For example:
+
+	{for var i=0; i<5; i++}
+		<div>Number ${i}</div>
+	{/for}
+
+This is a slightly more elegant way to achieve one of the previous examples.
+
 
 Basic Usage
 -----------

@@ -27,6 +27,7 @@ require("phnq_log").exec("phnq_ejs", function(log)
 			var buf = [];
 			buf.push("(function(_locals, _this){");
 			buf.push("_locals = _locals || {};");
+			buf.push("_this = _this || _locals;");
 			buf.push("var _b=[];");
 			buf.push("var _i=0;");
 			buf.push("(function(){");
