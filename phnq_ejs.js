@@ -90,11 +90,13 @@ var processLiterals = function(ejs)
 	});
 };
 
-var DOUBLE_BRACES_REGEX = /\{\{(.*)\}\}/g;
+var DOUBLE_BRACES_REGEX = /\{\{(.*)(\}{2,})/g;
 var replaceDoubleBraces = function(ejs)
 {
-	return ejs.replace(DOUBLE_BRACES_REGEX, function(match, $1, offset, orig)
+	return ejs.replace(DOUBLE_BRACES_REGEX, function(match, $1, $2, offset, orig)
 	{
+		var trailingBraces = $2;
+		var content = $1 + trailingBraces.substring(2);
 		return "{"+$1.replace(/\}/g, "[[[[[RIGHT_BRACE]]]]]")+"}";
 	});
 };

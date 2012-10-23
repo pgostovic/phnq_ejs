@@ -8,7 +8,12 @@ var getTestData = function(name, fn)
 {
 	var data = fs.readFileSync(path.join(__dirname, name), "UTF-8");
 	var comps = data.split(/=+\n/);
-	var testData = {it: comps[0], expected: comps[3]};
+	var testData =
+	{
+		it: comps[0],
+		expected: comps[3],
+		ejs: comps[2]
+	};
 	try
 	{
 		testData.objs = eval("("+comps[1]+")");
@@ -16,14 +21,6 @@ var getTestData = function(name, fn)
 	catch(ex)
 	{
 		testData.objs = null;
-	}
-	try
-	{
-		testData.ejsFn = eval(phnq_ejs.compile(comps[2]));
-	}
-	catch(ex)
-	{
-		testData.ejsFn = null;
 	}
 	return testData;
 };
@@ -46,14 +43,35 @@ describe("phnq_ejs", function()
 				it(testData.it, function()
 				{
 					assert.notEqual(testData.objs, null, "Test objects are null");
-					assert.notEqual(testData.ejsFn, null, "Test ejs fn is null");
 
-					assert.doesNotThrow(function()
+					var ejsCode = null;
+					var ejsFn = null;
+
+					var ex = null;
+					try
 					{
-						var result = phnq_core.trimLines(testData.ejsFn(testData.objs._locals, testData.objs._this), true);
-						var expected = phnq_core.trimLines(testData.expected, true);
-						assert.equal(expected, result);
-					});
+						ejsCode = phnq_ejs.compile(testData.ejs);
+					}
+					catch(exx)
+					{
+						ex = exx;
+					}
+					assert.equal(ex, null, "Couldn't compile ejs: "+testData.ejs + "\n\n" + ex);
+
+					ex = null;
+					try
+					{
+						ejsFn = eval(ejsCode);
+					}
+					catch(exx)
+					{
+						ex = exx;
+					}
+					assert.equal(ex, null, "Couldn't eval ejsCode: "+ejsCode + "\n\n" + ex);
+
+					var result = phnq_core.trimLines(ejsFn(testData.objs._locals, testData.objs._this), true);
+					var expected = phnq_core.trimLines(testData.expected, true);
+					assert.equal(expected, result);
 				});
 			}
 			testNext();
