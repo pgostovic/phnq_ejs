@@ -6,15 +6,41 @@ it should correctly handle double braces
 		getFoo: function(obj)
 		{
 			return obj.foo;
+		},
+		withBodyNoArgs: function(fn)
+		{
+			var x = 10;
+			var y = 5;
+			var buf = [];
+			fn(buf);
+			return "<<< " + (x+y) + ", " + buf.join("").trim() + " >>>";
+		},
+
+		withBodyArgs: function(obj, fn)
+		{
+			var buf = [];
+			fn(buf);
+			return "<<< " + (obj.x+obj.y) + ", " + buf.join("").trim() + " >>>";
+		},
+		add: function(x, y)
+		{
+			return x+y;
 		}
 	}
 }
 ==========
 {{if true}}
 	TRUTH
-{/if}
-<% var theObj = {foo:42}; %>
-{{getFoo theObj/}}
+{{/if}}
+{{getFoo {foo:42}/}}
+{{withBodyNoArgs}}
+	YO
+{{/withBodyNoArgs}}
+{{withBodyArgs {x:10, y:20}}}
+	{{add 1, 2/}}
+{{/withBodyArgs}}
 ==========
 TRUTH
 42
+<<< 15, YO >>>
+<<< 30, 3 >>>

@@ -8,12 +8,24 @@ var getTestData = function(name, fn)
 {
 	var data = fs.readFileSync(path.join(__dirname, name), "UTF-8");
 	var comps = data.split(/=+\n/);
-	return {
-			it: comps[0],
-			objs: eval("("+comps[1]+")"),
-			ejsFn: eval(phnq_ejs.compile(comps[2])),
-			expected: comps[3]
-		};
+	var testData = {it: comps[0], expected: comps[3]};
+	try
+	{
+		testData.objs = eval("("+comps[1]+")");
+	}
+	catch(ex)
+	{
+		testData.objs = null;
+	}
+	try
+	{
+		testData.ejsFn = eval(phnq_ejs.compile(comps[2]));
+	}
+	catch(ex)
+	{
+		testData.ejsFn = null;
+	}
+	return testData;
 };
 
 describe("phnq_ejs", function()
@@ -33,14 +45,19 @@ describe("phnq_ejs", function()
 				var testData = getTestData(name);
 				it(testData.it, function()
 				{
-					var result = phnq_core.trimLines(testData.ejsFn(testData.objs._locals, testData.objs._this), true);
-					var expected = phnq_core.trimLines(testData.expected, true);
-					assert.equal(expected, result);
+					assert.notEqual(testData.objs, null, "Test objects are null");
+					assert.notEqual(testData.ejsFn, null, "Test ejs fn is null");
+
+					assert.doesNotThrow(function()
+					{
+						var result = phnq_core.trimLines(testData.ejsFn(testData.objs._locals, testData.objs._this), true);
+						var expected = phnq_core.trimLines(testData.expected, true);
+						assert.equal(expected, result);
+					});
 				});
 			}
 			testNext();
 		};
-
 		testNext();		
 	});
 });

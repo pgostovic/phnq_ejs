@@ -90,22 +90,32 @@ var processLiterals = function(ejs)
 	});
 };
 
-var EXP_TAG_REGEX = /(\{)?\{(\/)?(\w*)(\s+.*?)?(\/)?\s*}(})?/g;
+var DOUBLE_BRACES_REGEX = /\{\{(.*)\}\}/g;
+var replaceDoubleBraces = function(ejs)
+{
+	return ejs.replace(DOUBLE_BRACES_REGEX, function(match, $1, offset, orig)
+	{
+		return "{"+$1.replace(/\}/g, "[[[[[RIGHT_BRACE]]]]]")+"}";
+	});
+};
+
+var EXP_TAG_REGEX = /\{(\/)?(\w*)(\s+.*?)?(\/)?\s*}/g;
 var CONTROL_STRUCT_NAMES = /^(if|for|while|else)$/;
 var processStructures = function(ejs)
 {
+	ejs = replaceDoubleBraces(ejs);
+
 	// collapse space between {/if} and {else}
 	ejs = ejs.replace(/\{\/if\}\s*?\{else\}/g, "{/if}{else}");
 
 	var nameStack = [];
 
-	return ejs.replace(EXP_TAG_REGEX, function(match, $1, $2, $3, $4, $5, $6, offset, orig)
+	return ejs.replace(EXP_TAG_REGEX, function(match, $1, $2, $3, $4, offset, orig)
 	{
-		var isBraceEscaped = !!$1 && !!$6
-		var isClose = $2 == "/";
-		var name = $3;
-		var args = $4;
-		var isEmpty = $5 == "/";
+		var isClose = $1 == "/";
+		var name = $2;
+		var args = $3;
+		var isEmpty = $4 == "/";
 
 		if(isClose)
 		{
@@ -144,7 +154,7 @@ var processStructures = function(ejs)
 				return "<%="+name+"("+args+"function(){%>";
 			}
 		}
-	});
+	}).replace(/\[\[\[\[\[RIGHT_BRACE\]\]\]\]\]/g, "}");
 };
 
 
