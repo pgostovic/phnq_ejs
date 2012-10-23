@@ -1,0 +1,12 @@
+it should correctly render a non-expression "if" in one line
+==========
+{
+}
+==========
+ONE
+<% if(true) { %><body><% } %>
+THREE
+==========
+ONE
+<body>
+THREE

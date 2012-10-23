@@ -99,7 +99,7 @@ var replaceDoubleBraces = function(ejs)
 	});
 };
 
-var EXP_TAG_REGEX = /\{(\/)?(\w*)(\s+.*?)?(\/)?\s*}/g;
+var EXP_TAG_REGEX = /\{(\/)?(\w+)(\s+.*?)?(\/)?\s*}/g;
 var CONTROL_STRUCT_NAMES = /^(if|for|while|else)$/;
 var processStructures = function(ejs)
 {
