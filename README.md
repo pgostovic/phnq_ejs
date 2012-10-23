@@ -1,4 +1,4 @@
-phnq_ejs - EJS Templates
+phnq_ejs - EJS Templates $Id$
 ========================
 The phnq_ejs module is simple templating utility that uses embedded JavaScript. It's inspired by several familiar embedded language templating systems such as ERB, JSP, ASP, etc. EJS uses the same notation as the aforementioned systems for embedding dynamic code into templates.  For example:
 
