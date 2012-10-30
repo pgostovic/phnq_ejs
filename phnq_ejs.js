@@ -103,7 +103,7 @@ var replaceDoubleBraces = function(ejs)
 };
 
 var EXP_TAG_REGEX = /\{(\/)?(\w+)(\s+.*?)?(\/)?\s*}/g;
-var CONTROL_STRUCT_NAMES = /^(if|for|while|else)$/;
+var CONTROL_STRUCT_NAMES = /^(if|for|while|else|with)$/;
 var processStructures = function(ejs)
 {
 	ejs = replaceDoubleBraces(ejs);

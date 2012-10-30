@@ -1,0 +1,26 @@
+it should correctly scope using 'with'
+==========
+{
+	_locals:
+	{
+		one:
+		{
+			two:
+			{
+				three:
+				{
+					foo: "bar",
+					bubba: "gump"
+				}
+			}
+		}
+	}
+}
+==========
+{with one.two.three}
+	${foo}
+	${bubba}
+{/with}
+==========
+bar
+gump
