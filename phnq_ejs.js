@@ -103,7 +103,8 @@ var replaceDoubleBraces = function(ejs)
 };
 
 var EXP_TAG_REGEX = /\{(\/)?(\w+)(\s+.*?)?(\/)?\s*}/g;
-var CONTROL_STRUCT_NAMES = /^(if|for|while|else|with)$/;
+var CONTROL_STRUCT_NAMES = /^(if|for|while|else|with|each)$/;
+var nextEachIdx = 0;
 var processStructures = function(ejs)
 {
 	ejs = replaceDoubleBraces(ejs);
@@ -140,12 +141,32 @@ var processStructures = function(ejs)
 
 			if(name.match(CONTROL_STRUCT_NAMES))
 			{
-				if(args)
-					args = "("+args+")";
+				if(name == "each")
+				{
+					var m = /([\w]*)\s*in\s*(.*)/.exec(args);
+					if(m)
+					{
+						var idxVar = "each"+(nextEachIdx++);
+						var buf = [];
+						buf.push("<%for(var "+idxVar+"=0; "+idxVar+"<"+m[2]+".length; "+idxVar+"++){");
+						buf.push("var "+m[1]+"="+m[2]+"["+idxVar+"];")
+						buf.push("%>");
+						return buf.join("");
+					}
+					else
+					{
+						throw "invalid 'each' syntax";
+					}
+				}
 				else
-					args = "";
+				{
+					if(args)
+						args = "("+args+")";
+					else
+						args = "";
 
-				return "<%"+name+args+"{%>";
+					return "<%"+name+args+"{%>";
+				}
 			}
 			else
 			{

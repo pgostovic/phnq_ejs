@@ -1,0 +1,44 @@
+it should correctly use "each"
+==========
+{
+	_locals:
+	{
+		nums: [ 1, 2, 3],
+		strs: ["one", "two", "three"],
+		objs: [{name:"bubba", age:33}, {name:"gump", age:42}, {name:"bobo", age:29}]
+	}
+}
+==========
+{each num in nums}
+	num ${num}
+{/each}
+{each str in strs}
+	str ${str}
+{/each}
+{each obj in objs}
+	obj ${obj.name} ${obj.age}
+{/each}
+{each str in strs}
+	{each num in nums}
+		${str} ${num}
+	{/each}
+{/each}
+==========
+num 1
+num 2
+num 3
+str one
+str two
+str three
+obj bubba 33
+obj gump 42
+obj bobo 29
+one 1
+one 2
+one 3
+two 1
+two 2
+two 3
+three 1
+three 2
+three 3
