@@ -2,8 +2,6 @@ require("phnq_log").exec("phnq_ejs", function(log)
 {
 	var phnq_core = require("phnq_core");
 
-	phnq_core.assertServer();
-
 	var ESC_REGEX = /<%(=)?([\s\S]*?)%>/g;
 	var BODY_FN_REGEX = /([\s,])?function\(([^)]*)\)\s*\{\s*$/;
 
@@ -74,7 +72,14 @@ require("phnq_log").exec("phnq_ejs", function(log)
 		}
 	};
 
-	module.exports = phnq_ejs;
+	if(phnq_core.isServer())
+	{
+		module.exports = phnq_ejs;
+	}
+	else
+	{
+		window.phnq_ejs = phnq_ejs;
+	}
 });
 
 var processExpressions = function(ejs)
