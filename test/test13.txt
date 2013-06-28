@@ -12,6 +12,9 @@ it should correctly use "each"
 {each num in nums}
 	num ${num}
 {/each}
+{each num in nums}
+	index ${index}
+{/each}
 {each str in strs}
 	str ${str}
 {/each}
@@ -27,6 +30,9 @@ it should correctly use "each"
 num 1
 num 2
 num 3
+index 0
+index 1
+index 2
 str one
 str two
 str three

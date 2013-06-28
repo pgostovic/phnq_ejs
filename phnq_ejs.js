@@ -154,7 +154,8 @@ var processStructures = function(ejs)
 						var idxVar = "each"+(nextEachIdx++);
 						var buf = [];
 						buf.push("<%for(var "+idxVar+"=0; "+idxVar+"<"+m[2]+".length; "+idxVar+"++){");
-						buf.push("var "+m[1]+"="+m[2]+"["+idxVar+"];")
+						buf.push("var "+m[1]+"="+m[2]+"["+idxVar+"];\n");
+						buf.push("var index = "+idxVar+";\n");
 						buf.push("%>");
 						return buf.join("");
 					}
